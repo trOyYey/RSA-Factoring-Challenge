@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+while IFS= read -r val;
+do
+	# Skip empty lines or non-integer values
+	if [[ -z "$val" || ! "$val" =~ ^[0-9]+$ ]]; then
+		continue
+	fi
+
+	fact=($(factor "$val"))
+	if [[ "${fact[1]}" -eq 0 ]]; then
+		echo "$val=$val*$val"
+	else
+		echo "$val=$(bc <<< "$val/${fact[1]}")*${fact[1]}"
+	fi
+done < "$1"
