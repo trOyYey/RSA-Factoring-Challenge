@@ -2,6 +2,16 @@
 
 while IFS= read -r val;
 do
-    fact=($(factor $val))
-    echo "$val=$(bc <<< "$val/${fact[1]}")*${fact[1]}"
-done < $1
+    # Skip empty lines or non-integer values
+    if [[ -z "$val" || ! "$val" =~ ^[0-9]+$ ]]; then
+        echo "Skipping non-integer or empty line: $val"
+        continue
+    fi
+
+    fact=($(factor "$val"))
+    if [[ "${fact[1]}" -eq 0 ]]; then
+        echo "$val=Cannot divide by zero"
+    else
+        echo "$val=$(bc <<< "$val/${fact[1]}")*${fact[1]}"
+    fi
+done < "$1"
