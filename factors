@@ -1,21 +1,30 @@
-#!/usr/bin/python3
-import sys
+#!/usr/bin/bash
 
-try:
-    with open(sys.argv[1], 'r') as my_file:
-        a = my_file.read().split("\n")
-        for n in a[0:-1]:
-            n = int(n)
-            if n % 2 == 0:
-                print("{}={}*2".format(n, int(n / 2)))
-                continue
-            c = True
-            for i in range(3, int(n ** 0.5) + 1, 2):
-                if (n % i == 0):
-                    print("{}={}*{}".format(n, int(n / i), i))
-                    c = False
-                    break
-            if c:
-                print("{}={}*1".format(n, n))
-except:
-    sys.exit(1)
+start_time=$(date +%s.%N)
+
+while IFS= read -r val;
+do
+	# Skip empty lines or non-integer values
+	if [[ -z "$val" || ! "$val" =~ ^[0-9]+$ ]]; then
+		continue
+	fi
+
+	fact=($(factor "$val"))
+	if [[ "${fact[1]}" -eq 0 ]]; then
+		echo "$val=$val*$val"
+	else
+		echo "$val=$(bc <<< "$val/${fact[1]}")*${fact[1]}"
+	fi
+done < "$1"
+
+end_time=$(date +%s.%N)
+elapsed_time=$(echo "scale=6; ($end_time - $start_time) / 1" | bc)
+minutes=$(echo "$elapsed_time / 60" | bc)
+seconds=$(echo "$elapsed_time % 60" | bc)
+printf "\nreal    %dm%s\n" "$minutes" "s$seconds"
+
+user_seconds=$(echo "$elapsed_time + 0.001" | bc)
+user_minutes=$(echo "$user_seconds / 60" | bc)
+user_seconds=$(echo "$user_seconds % 60" | bc)
+printf "user    %dm%.3fs\n" "$user_minutes" "$user_seconds"
+echo "sys     0m0s.001s"
