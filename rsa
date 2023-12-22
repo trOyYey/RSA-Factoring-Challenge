@@ -7,20 +7,20 @@ is_prime()
 
 while IFS= read -r val
 do
-	result=($(factor $val))
-	if [ ${#result[@]} -eq 3 ]
+	res=($(factor $val))
+	if [ ${#res[@]} -eq 3 ]
 	then
-		echo "$val=$(bc <<< "$val/${result[1]}")*${result[1]}"
+		echo "$val=$(bc <<< "$val/${res[1]}")*${res[1]}"
 	else
 		end=$(echo "sqrt($val)" | bc)
-		for (( x=3 ; x<=$end ; x+=2 ));
+		for (( i=3 ; i<=$end ; i+=2 ));
 		do
-			if [ $(($val % $x)) -eq 0 ] && [ $(is_prime $(factor $x)) -eq 2 ]
+			if [ $(($val % $i)) -eq 0 ] && [ $(is_prime $(factor $i)) -eq 2 ]
 			then
-				div=$(echo "$val/$x" | bc)
+				div=$(echo "$val/$i" | bc)
 				if [[ $(is_prime $(factor $div)) -eq 2 ]]
 				then
-					echo "$val=$x*$div"
+					echo "$val=$i*$div"
 					exit
 				fi
 			fi
